@@ -1,38 +1,43 @@
-import { Injectable } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
+import { inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { AuthService } from '../services/auth.service';
-import { inject } from '@angular/core';
+import { map, take } from 'rxjs/operators';
 
-/**
- * AuthGuard - Protects routes that require authentication
- * Redirects unauthenticated users to /login
- */
 export const authGuard: CanActivateFn = (route, state) => {
-  const authService = inject(AuthService);
-  const router = inject(Router);
+  const platformId = inject(PLATFORM_ID);
 
-  if (authService.isAuthenticated()) {
+  // ✅ Important: don't block navigation during SSR.
+  // Let the browser decide after hydration (localStorage exists there).
+  if (!isPlatformBrowser(platformId)) {
     return true;
   }
 
-  // Redirect to login page
-  router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
-  return false;
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  return authService.currentUser$.pipe(
+    take(1),
+    map(user =>
+      user
+        ? true
+        : router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } })
+    )
+  );
 };
 
-/**
- * AdminGuard - Protects routes that require admin role
- * Redirects non-admin users to /home
- */
-export const adminGuard: CanActivateFn = (route, state) => {
-  const authService = inject(AuthService);
-  const router = inject(Router);
+export const adminGuard: CanActivateFn = () => {
+  const platformId = inject(PLATFORM_ID);
 
-  if (authService.isAuthenticated() && authService.isAdmin()) {
+  if (!isPlatformBrowser(platformId)) {
     return true;
   }
 
-  // Redirect to home page if not admin
-  router.navigate(['/home']);
-  return false;
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  return authService.currentUser$.pipe(
+    take(1),
+    map(user => (user?.isAdmin ? true : router.createUrlTree(['/home'])))
+  );
 };
