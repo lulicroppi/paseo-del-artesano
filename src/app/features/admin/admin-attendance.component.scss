@@ -1,12 +1,220 @@
 .admin-attendance-container {
   padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
 
   h2 {
     margin-top: 0;
     color: #333;
+    font-size: 28px;
+    margin-bottom: 10px;
   }
 
   p {
     color: #666;
+    margin-bottom: 20px;
+  }
+
+  .event-selector-section {
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    label {
+      font-weight: 600;
+      color: #333;
+      font-size: 14px;
+      min-width: fit-content;
+    }
+
+    .event-selector {
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+      background-color: white;
+      cursor: pointer;
+      min-width: 300px;
+
+      &:focus {
+        outline: none;
+        border-color: #4CAF50;
+        box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+      }
+    }
+  }
+
+  .attendance-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+
+    .stat-card {
+      background-color: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      .stat-label {
+        font-size: 12px;
+        color: #999;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+      }
+
+      .stat-value {
+        font-size: 32px;
+        font-weight: 700;
+        color: #4CAF50;
+      }
+    }
+  }
+
+  .table-container {
+    overflow-x: auto;
+    margin-bottom: 30px;
+  }
+
+  .attendees-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+
+    thead {
+      background-color: #f5f5f5;
+      border-bottom: 2px solid #ddd;
+    }
+
+    th {
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+      color: #333;
+      font-size: 14px;
+    }
+
+    td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #eee;
+      font-size: 14px;
+      color: #666;
+    }
+
+    tbody tr {
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: #f9f9f9;
+      }
+
+      &.status-Anotado {
+        opacity: 1;
+      }
+
+      &.status-Asistio {
+        background-color: #e8f5e9;
+      }
+
+      &.status-No\ asistio {
+        background-color: #ffebee;
+      }
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+
+      &.status-Anotado {
+        background-color: #2196F3;
+        color: white;
+      }
+
+      &.status-Asistio {
+        background-color: #4CAF50;
+        color: white;
+      }
+
+      &.status-No\ asistio {
+        background-color: #f44336;
+        color: white;
+      }
+    }
+
+    .actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+
+      button {
+        padding: 6px 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+
+        &.btn-attended {
+          background-color: #4CAF50;
+          color: white;
+
+          &:hover {
+            background-color: #45a049;
+            box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+          }
+        }
+
+        &.btn-notattended {
+          background-color: #f44336;
+          color: white;
+
+          &:hover {
+            background-color: #da190b;
+            box-shadow: 0 2px 6px rgba(244, 67, 54, 0.3);
+          }
+        }
+
+        &.btn-reset {
+          background-color: #2196F3;
+          color: white;
+
+          &:hover {
+            background-color: #0b7dda;
+            box-shadow: 0 2px 6px rgba(33, 150, 243, 0.3);
+          }
+        }
+      }
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+    font-size: 16px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border: 2px dashed #ddd;
+
+    p {
+      margin: 0;
+      color: #999;
+    }
   }
 }

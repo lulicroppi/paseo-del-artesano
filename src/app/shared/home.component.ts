@@ -44,8 +44,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   // Admin tabs
   private adminTabs: TabItem[] = [
     { label: 'Fechas', value: 'dates', component: AdminDatesComponent },
-    { label: 'Reportes', value: 'reports', component: AdminReportsComponent },
-    { label: 'Asistencia', value: 'attendance', component: AdminAttendanceComponent }
+    { label: 'Asistencia', value: 'attendance', component: AdminAttendanceComponent },
+    { label: 'Reportes', value: 'reports', component: AdminReportsComponent }
   ];
 
   // User tabs

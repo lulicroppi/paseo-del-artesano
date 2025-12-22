@@ -2,9 +2,92 @@
   <h2>Asistencia</h2>
   <p>Panel de seguimiento de asistencia a eventos.</p>
   
-  <!-- TODO: Add attendance UI -->
-  <!-- - Event selector dropdown -->
-  <!-- - Attendee list table -->
-  <!-- - Check-in/Check-out functionality -->
-  <!-- - Attendance summary stats -->
+  <!-- Event selector dropdown -->
+  <div class="event-selector-section">
+    <label for="eventSelect">Selecciona un evento:</label>
+    <select 
+      id="eventSelect"
+      [(ngModel)]="selectedEventId" 
+      (change)="onEventChange()"
+      class="event-selector"
+    >
+      <option value="">-- Seleccionar evento --</option>
+      <option *ngFor="let event of events" [value]="event.id">
+        {{ event.date | date:'dd/MM/yyyy' }} - {{ event.time }}
+      </option>
+    </select>
+  </div>
+
+  <!-- Attendance summary stats -->
+  <div class="attendance-stats" *ngIf="selectedEventId && filteredAttendees.length > 0">
+    <div class="stat-card">
+      <span class="stat-label">Total Asistentes</span>
+      <span class="stat-value">{{ filteredAttendees.length }}</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Registrados</span>
+      <span class="stat-value">{{ getCheckedInCount() }}</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Ausentes</span>
+      <span class="stat-value">{{ getAbsentCount() }}</span>
+    </div>
+  </div>
+
+  <!-- Attendee list table -->
+  <div class="table-container" *ngIf="selectedEventId && filteredAttendees.length > 0">
+    <table class="attendees-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Emprendimiento</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let attendee of filteredAttendees" [ngClass]="'status-' + attendee.status">
+          <td>{{ attendee.name }}</td>
+          <td>{{ attendee.emprendimiento }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="'status-' + attendee.status">
+              {{ attendee.status }}
+            </span>
+          </td>
+          <td class="actions">
+            <button 
+              *ngIf="attendee.status !== 'Asistio'"
+              (click)="markAttended(attendee)"
+              class="btn-attended"
+              title="Marcar como asistió"
+            >
+              Asistió
+            </button>
+            <button 
+              *ngIf="attendee.status !== 'No asistio'"
+              (click)="markNotAttended(attendee)"
+              class="btn-notattended"
+              title="Marcar como no asistió"
+            >
+              No Asistió
+            </button>
+            <button 
+              *ngIf="attendee.status !== 'Anotado'"
+              (click)="resetToRegistered(attendee)"
+              class="btn-reset"
+              title="Volver a anotado"
+            >
+              Anotado
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Empty state -->
+  <div class="empty-state" *ngIf="!selectedEventId || filteredAttendees.length === 0">
+    <p *ngIf="!selectedEventId">Selecciona un evento para ver los asistentes.</p>
+    <p *ngIf="selectedEventId && filteredAttendees.length === 0">No hay asistentes registrados para este evento.</p>
+  </div>
 </div>

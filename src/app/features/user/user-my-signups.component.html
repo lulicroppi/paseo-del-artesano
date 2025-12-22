@@ -1,10 +1,77 @@
 <div class="user-my-signups-container">
   <h2>Mis Inscripciones</h2>
   <p>Visualiza tus eventos registrados.</p>
-  
-  <!-- TODO: Add user signups list UI -->
-  <!-- - Cards showing registered events -->
-  <!-- - Event details (date, time, location) -->
-  <!-- - Cancel registration buttons -->
-  <!-- - Status badges (confirmed, pending, attended) -->
+
+  <!-- Filter section -->
+  <div class="filter-section">
+    <label for="filterSelect">Filtrar por:</label>
+    <select
+      id="filterSelect"
+      [(ngModel)]="selectedFilter"
+      (change)="onFilterChange()"
+      class="filter-select"
+    >
+      <option value="all">Todos</option>
+      <option value="enabled">Eventos Activos</option>
+      <option value="disabled">Eventos Cerrados</option>
+      <option value="confirmed">Confirmado</option>
+      <option value="pending">Pendiente</option>
+      <option value="attended">Asistido</option>
+    </select>
+  </div>
+
+  <!-- Message display -->
+  <div *ngIf="message" class="message" [ngClass]="'message-' + messageType">
+    {{ message }}
+  </div>
+
+  <!-- Signups cards grid -->
+  <div class="signups-grid" *ngIf="filteredSignups.length > 0">
+    <div *ngFor="let signup of filteredSignups" class="signup-card" [ngClass]="{'disabled-event': !signup.enabled}">
+      <div class="card-header">
+        <h3>{{ signup.eventName }}</h3>
+        <span class="status-badge" [ngClass]="'status-' + getStatusColor(signup.status)">
+          {{ signup.status }}
+        </span>
+      </div>
+
+      <div class="card-body">
+        <div class="event-detail">
+          <span class="detail-label">📅 Fecha:</span>
+          <span class="detail-value">{{ formatDate(signup.date) }}</span>
+        </div>
+        <div class="event-detail">
+          <span class="detail-label">🕐 Hora:</span>
+          <span class="detail-value">{{ signup.time }}</span>
+        </div>
+        <div class="event-detail">
+          <span class="detail-label">📝 Inscripción:</span>
+          <span class="detail-value">{{ formatDate(signup.registrationDate) }}</span>
+        </div>
+        <div class="event-status" [ngClass]="{'status-inactive': !signup.enabled, 'status-active': signup.enabled}">
+          <span>{{ signup.enabled ? '✓ Evento Activo' : '✕ Evento Cerrado' }}</span>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <button
+          *ngIf="signup.enabled"
+          (click)="cancelSignup(signup)"
+          class="btn-cancel"
+          title="Cancelar inscripción"
+        >
+          Cancelar Inscripción
+        </button>
+        <button *ngIf="!signup.enabled" class="btn-closed" disabled>
+          Evento Cerrado
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div class="empty-state" *ngIf="filteredSignups.length === 0">
+    <p>No hay inscripciones que mostrar.</p>
+    <p class="sub-text">¡Regístrate en eventos para ver tus inscripciones!</p>
+  </div>
 </div>

@@ -2,8 +2,58 @@
   <h2>Gestión de Fechas</h2>
   <p>Panel de administración para gestionar las fechas de los eventos.</p>
   
-  <!-- TODO: Add dates management UI -->
-  <!-- - Date list table -->
-  <!-- - Create/Edit/Delete actions -->
-  <!-- - Date picker for new events -->
+  <!-- Create new date button -->
+  <button class="btn-create-date" (click)="openCreateForm()">+ Crear Nueva Fecha</button>
+  
+  <!-- Create/Edit form -->
+  <div class="date-form" *ngIf="showForm">
+    <h3>{{ isEditing ? 'Editar Fecha' : 'Crear Nueva Fecha' }}</h3>
+    <form (ngSubmit)="saveDate()">
+      <div class="form-group">
+        <label>Fecha:</label>
+        <input [(ngModel)]="currentDate.date" name="date" type="date" required />
+      </div>
+      <div class="form-group">
+        <label>Hora:</label>
+        <input [(ngModel)]="currentDate.time" name="time" type="time" required />
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-save">Guardar</button>
+        <button type="button" (click)="cancelForm()" class="btn-cancel">Cancelar</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Date list table -->
+  <table class="dates-table" *ngIf="!showForm">
+    <thead>
+      <tr>
+        <th>Fecha</th>
+        <th>Hora</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let dateItem of datesList" [class.disabled]="!dateItem.enabled">
+        <td>{{ dateItem.date | date:'dd/MM/yyyy' }}</td>
+        <td>{{ dateItem.time }}</td>
+        <td>
+          <!-- Enable/Disable toggle -->
+          <label class="toggle-switch">
+            <input type="checkbox" [(ngModel)]="dateItem.enabled" name="enabled_{{ dateItem.id }}" />
+            <span class="slider"></span>
+          </label>
+          {{ dateItem.enabled ? 'Activo' : 'Inactivo' }}
+        </td>
+        <td class="actions">
+          <button (click)="deleteDate(dateItem.id)" class="btn-delete">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="empty-state" *ngIf="datesList.length === 0 && !showForm">
+    <p>No hay fechas creadas. Crea una nueva fecha para comenzar.</p>
+  </div>
 </div>
