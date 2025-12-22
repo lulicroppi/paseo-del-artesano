@@ -47,8 +47,8 @@
       </thead>
       <tbody>
         <tr *ngFor="let attendee of filteredAttendees" [ngClass]="'status-' + attendee.status">
-          <td>{{ attendee.name }}</td>
-          <td>{{ attendee.emprendimiento }}</td>
+          <td>{{ attendee.nameLastName }}</td>
+          <td>{{ attendee.nameShop }}</td>
           <td>
             <span class="status-badge" [ngClass]="'status-' + attendee.status">
               {{ attendee.status }}

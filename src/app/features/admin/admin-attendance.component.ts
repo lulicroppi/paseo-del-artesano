@@ -13,8 +13,8 @@ interface Event {
 
 interface Attendee {
   id: string;
-  name: string;
-  emprendimiento: string;
+  nameLastName: string;
+  nameShop: string;
   eventId: string;
   status: 'Anotado' | 'Asistio' | 'No asistio';
 }
@@ -57,8 +57,8 @@ export class AdminAttendanceComponent implements OnInit {
     this.firestore.getAllInscriptions().subscribe(inscriptions => {
       this.attendees = inscriptions.map((ins: any) => ({
         id: ins.id,
-        name: ins.name ?? ins.nameLastName ?? ins.userName ?? 'Participante',
-        emprendimiento: ins.nameShop ?? ins.emprendimiento ?? '',
+        nameLastName: ins.nameLastName ?? ins.userName ?? 'Participante',
+        nameShop: ins.nameShop ?? ins.emprendimiento ?? '',
         eventId: ins.eventId?.toString() ?? (ins.idEvent ? String(ins.idEvent) : ''),
         status: ins.status === 'Asistio' || ins.assisted ? 'Asistio' : (ins.status === 'No asistio' ? 'No asistio' : 'Anotado')
       } as Attendee));

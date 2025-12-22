@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { FirestoreService } from '../../core/services/firestore.service';
+import { AuthService } from '../../core/services/auth.service';
 
 interface Event {
   id: string;
@@ -23,41 +25,98 @@ export class UserSignupComponent implements OnInit {
   showConfirmation: boolean = false;
   confirmationMessage: string = '';
   
+  private firestore = inject(FirestoreService);
+  private authService = inject(AuthService);
+  
   ngOnInit(): void {
     this.loadEnabledEvents();
+    this.loadUserSignups();
   }
 
   loadEnabledEvents(): void {
-    // Load events from admin (only enabled ones)
-    const allEvents: Event[] = [
-      { id: '1', eventName: 'Workshop Angular', date: '2025-01-15', time: '10:00', enabled: true },
-      { id: '2', eventName: 'Artisan Fair', date: '2025-01-20', time: '09:00', enabled: true },
-      { id: '3', eventName: 'Crafts Exhibition', date: '2025-02-01', time: '11:00', enabled: false }
-    ];
-    
-    // Filter only enabled events and sort by latest date/time
-    this.availableEvents = allEvents
-      .filter(event => event.enabled)
-      .sort((a, b) => {
-        const dateTimeA = new Date(`${a.date}T${a.time}`).getTime();
-        const dateTimeB = new Date(`${b.date}T${b.time}`).getTime();
-        return dateTimeB - dateTimeA; // Latest first
+    // Load events from Firestore
+    this.firestore.getAllEvents().subscribe(events => {
+      this.availableEvents = events
+        .map(e => ({
+          id: e.id,
+          eventName: e.eventName ?? e.name ?? 'Evento',
+          date: e.date ?? (e.eventDate ? new Date(e.eventDate.seconds ? e.eventDate.seconds * 1000 : e.eventDate).toISOString().split('T')[0] : ''),
+          time: e.time ?? '',
+          enabled: e.enabled ?? true
+        } as Event))
+        .filter(event => event.enabled)
+        .sort((a, b) => {
+          const dateTimeA = new Date(`${a.date}T${a.time}`).getTime();
+          const dateTimeB = new Date(`${b.date}T${b.time}`).getTime();
+          return dateTimeB - dateTimeA; // Latest first
+        });
+    }, err => {
+      console.error('Error loading events from Firestore:', err);
+    });
+  }
+
+  loadUserSignups(): void {
+    // Load current user's inscriptions
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser?.dni) {
+      this.firestore.getUserInscriptions(String(currentUser.dni)).subscribe(inscriptions => {
+        this.userSignups = new Set(inscriptions.map(ins => ins.eventId?.toString() ?? String(ins.idEvent)));
+      }, err => {
+        console.error('Error loading user signups:', err);
       });
+    }
   }
 
   signUpForEvent(event: Event): void {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser?.dni) {
+      this.showMessage('Debes estar autenticado para inscribirse');
+      return;
+    }
+
     if (this.userSignups.has(event.id)) {
       this.showMessage(`Ya estás inscrito en ${event.eventName}`);
     } else {
-      this.userSignups.add(event.id);
-      this.showMessage(`¡Te has inscrito en ${event.eventName}!`);
+      // Create inscription in Firestore
+      this.firestore.createInscription({
+        userId: String(currentUser.dni),
+        eventId: event.id,
+        status: 'Anotado',
+        nameLastName: currentUser.nameLastName,
+        nameShop: currentUser.nameShop,
+        createdAt: new Date().toISOString()
+      }).then(() => {
+        this.userSignups.add(event.id);
+        this.showMessage(`¡Te has registrado!`);
+      }).catch(err => {
+        console.error('Error creating inscription:', err);
+        this.showMessage('Error al inscribirse. Intenta de nuevo.');
+      });
     }
   }
 
   cancelSignup(event: Event): void {
     if (this.userSignups.has(event.id)) {
-      this.userSignups.delete(event.id);
-      this.showMessage(`Te has desinscrito de ${event.eventName}`);
+      // Delete inscription from Firestore
+      const currentUser = this.authService.getCurrentUser();
+      if (!currentUser?.dni) return;
+
+      this.firestore.getAllInscriptions().subscribe(inscriptions => {
+        const inscription = inscriptions.find(ins => 
+          ins.eventId === event.id && ins.userId === String(currentUser.dni)
+        );
+        if (inscription) {
+          this.firestore.deleteInscription(inscription.id).then(() => {
+            this.userSignups.delete(event.id);
+            this.showMessage(`Te has dado de baja`);
+          }).catch(err => {
+            console.error('Error deleting inscription:', err);
+            this.showMessage('Error al desinscribirse. Intenta de nuevo.');
+          });
+        }
+      }, err => {
+        console.error('Error fetching inscriptions:', err);
+      });
     }
   }
 

@@ -37,16 +37,8 @@
 
       <div class="card-body">
         <div class="event-detail">
-          <span class="detail-label">📅 Fecha:</span>
-          <span class="detail-value">{{ formatDate(signup.date) }}</span>
-        </div>
-        <div class="event-detail">
-          <span class="detail-label">🕐 Hora:</span>
-          <span class="detail-value">{{ signup.time }}</span>
-        </div>
-        <div class="event-detail">
-          <span class="detail-label">📝 Inscripción:</span>
-          <span class="detail-value">{{ formatDate(signup.registrationDate) }}</span>
+          <span class="detail-label">📅 Fecha</span>
+          <span class="detail-value">{{ formatDate(signup.registrationDate) }} HS</span>
         </div>
         <div class="event-status" [ngClass]="{'status-inactive': !signup.enabled, 'status-active': signup.enabled}">
           <span>{{ signup.enabled ? '✓ Evento Activo' : '✕ Evento Cerrado' }}</span>
