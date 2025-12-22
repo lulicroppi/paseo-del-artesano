@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FirestoreService } from '../../core/services/firestore.service';
@@ -24,6 +24,7 @@ export class AdminDatesComponent implements OnInit, OnDestroy {
   isEditing: boolean = false;
   currentDate: EventDate = this.createEmptyDate();
   private checkInterval: any;
+  private firestore = inject(FirestoreService);
 
   ngOnInit(): void {
     this.loadDates();
@@ -32,9 +33,10 @@ export class AdminDatesComponent implements OnInit, OnDestroy {
     this.checkInterval = setInterval(() => this.checkEventStatus(), 60000);
   }
 
-  constructor(private firestore: FirestoreService) {
-  this.firestore.testConnection(); // Opens browser console with all data
-}
+  constructor() {
+    // Prefer to use injected service in properties to avoid DI ordering issues
+    this.firestore.testConnection(); // Opens browser console with all data
+  }
 
   ngOnDestroy(): void {
     if (this.checkInterval) {
@@ -53,13 +55,19 @@ export class AdminDatesComponent implements OnInit, OnDestroy {
   }
 
   loadDates(): void {
-    // Load existing dates from storage or API
-    this.datesList = [
-      { id: '1', eventName: 'Workshop Angular', date: '2025-01-15', time: '10:00', enabled: true },
-      { id: '2', eventName: 'Artisan Fair', date: '2025-01-20', time: '09:00', enabled: true },
-      { id: '3', eventName: 'Crafts Exhibition', date: '2025-02-01', time: '11:00', enabled: false }
-    ];
-    this.checkEventStatus();
+    // Load existing dates from Firestore
+    this.firestore.getAllEvents().subscribe(events => {
+      this.datesList = events.map(e => ({
+        id: e.id,
+        eventName: e.eventName ?? e.name ?? 'Evento',
+        date: e.date ?? (e.eventDate ? new Date(e.eventDate.seconds ? e.eventDate.seconds * 1000 : e.eventDate).toISOString().split('T')[0] : ''),
+        time: e.time ?? '',
+        enabled: e.enabled ?? true
+      } as EventDate));
+      this.checkEventStatus();
+    }, err => {
+      console.error('Error loading events from Firestore:', err);
+    });
   }
 
   checkEventStatus(): void {
@@ -91,17 +99,30 @@ export class AdminDatesComponent implements OnInit, OnDestroy {
 
   saveDate(): void {
     if (this.isEditing) {
-      const index = this.datesList.findIndex(d => d.id === this.currentDate.id);
-      if (index > -1) {
-        this.datesList[index] = this.currentDate;
-      }
+      // Update in Firestore
+      this.firestore.updateEvent(this.currentDate.id, {
+        eventName: this.currentDate.eventName,
+        date: this.currentDate.date,
+        time: this.currentDate.time,
+        enabled: this.currentDate.enabled
+      }).then(() => {
+        this.showForm = false;
+        this.currentDate = this.createEmptyDate();
+        this.loadDates();
+      }).catch(err => console.error('Error updating event:', err));
     } else {
-      this.currentDate.id = Date.now().toString();
-      this.datesList.push(this.currentDate);
+      // Create in Firestore
+      this.firestore.createEvent({
+        eventName: this.currentDate.eventName,
+        date: this.currentDate.date,
+        time: this.currentDate.time,
+        enabled: this.currentDate.enabled
+      }).then(() => {
+        this.showForm = false;
+        this.currentDate = this.createEmptyDate();
+        this.loadDates();
+      }).catch(err => console.error('Error creating event:', err));
     }
-    this.showForm = false;
-    this.currentDate = this.createEmptyDate();
-    this.checkEventStatus();
   }
 
   cancelForm(): void {
@@ -111,7 +132,16 @@ export class AdminDatesComponent implements OnInit, OnDestroy {
 
   deleteDate(id: string): void {
     if (confirm('¿Está seguro de que desea eliminar esta fecha?')) {
-      this.datesList = this.datesList.filter(d => d.id !== id);
+      this.firestore.deleteEvent(id).then(() => {
+        this.datesList = this.datesList.filter(d => d.id !== id);
+      }).catch(err => console.error('Error deleting event:', err));
     }
+  }
+
+  updateDateStatus(dateItem: EventDate): void {
+    // Persist the enabled status change to Firestore
+    this.firestore.updateEvent(dateItem.id, {
+      enabled: dateItem.enabled
+    }).catch(err => console.error('Error updating event status:', err));
   }
 }

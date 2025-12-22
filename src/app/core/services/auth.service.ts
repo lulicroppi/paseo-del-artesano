@@ -1,7 +1,8 @@
 import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
 import { User } from '../models/user.model';
+import { FirestoreService } from './firestore.service';
 
 /**
  * AuthService - Handles authentication logic
@@ -14,6 +15,7 @@ import { User } from '../models/user.model';
 })
 export class AuthService {
   private platformId = inject(PLATFORM_ID);
+  private firestoreService = inject(FirestoreService);
   private currentUserSubject = new BehaviorSubject<User | null>(this.loadUserFromStorage());
   public currentUser$ = this.currentUserSubject.asObservable();
 
@@ -60,24 +62,39 @@ export class AuthService {
    * @param password - User password
    * @returns true if login successful, false otherwise
    */
-  login(dni: number, password: string): boolean {
-    const user = this.mockUsers.find(u => u.dni === Number(dni) && u.password === password);
-    
-    if (user) {
-      // Remove password before storing in state
-      const userWithoutPassword = { ...user };
-      delete (userWithoutPassword as any).password;
-      
-      this.currentUserSubject.next(user);
-      
-      // Only save to localStorage in browser environment
-      if (isPlatformBrowser(this.platformId)) {
-        localStorage.setItem('currentUser', JSON.stringify(userWithoutPassword));
+  /**
+   * Login using Firestore users collection by DNI and password
+   * Returns a Promise that resolves to true on successful authentication
+   */
+  async login(dni: number, password: string): Promise<boolean> {
+    try {
+      // Query Firestore for user with this DNI
+      const users$ = this.getFirestoreService().getUserByDni(Number(dni));
+      const users = await firstValueFrom(users$);
+      if (!users || users.length === 0) return false;
+
+      const user = users[0] as User;
+      if (user && user.password === password) {
+        const userWithoutPassword: any = { ...user };
+        delete userWithoutPassword.password;
+
+        this.currentUserSubject.next(userWithoutPassword);
+
+        if (isPlatformBrowser(this.platformId)) {
+          localStorage.setItem('currentUser', JSON.stringify(userWithoutPassword));
+        }
+        return true;
       }
-      return true;
+      return false;
+    } catch (err) {
+      console.error('Login error:', err);
+      return false;
     }
-    
-    return false;
+  }
+
+  private getFirestoreService(): FirestoreService {
+    // Return the service injected at field initialization
+    return this.firestoreService;
   }
 
   /**

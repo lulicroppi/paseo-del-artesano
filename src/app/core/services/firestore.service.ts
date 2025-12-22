@@ -48,6 +48,19 @@ export class FirestoreService {
   }
 
   /**
+   * Fetch user by DNI field
+   * @param dni - numeric dni value
+   */
+  getUserByDni(dni: number): Observable<any[]> {
+    console.log(`Querying user by dni: ${dni}`);
+    const q = query(
+      collection(this.firestore, 'users'),
+      where('dni', '==', Number(dni))
+    );
+    return collectionData(q, { idField: 'id' }) as Observable<any[]>;
+  }
+
+  /**
    * Fetch all events from Firestore
    * Collection: 'events'
    */
@@ -172,6 +185,14 @@ export class FirestoreService {
   deleteInscription(inscriptionId: string): Promise<void> {
     console.log(`Deleting inscription: ${inscriptionId}`);
     return deleteDoc(doc(this.firestore, 'inscriptions', inscriptionId));
+  }
+
+  /**
+   * Update inscription by ID
+   */
+  updateInscription(inscriptionId: string, data: any): Promise<void> {
+    console.log(`Updating inscription ${inscriptionId}:`, data);
+    return updateDoc(doc(this.firestore, 'inscriptions', inscriptionId), data);
   }
 
   /**

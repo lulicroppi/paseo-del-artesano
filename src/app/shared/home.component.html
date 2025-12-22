@@ -8,7 +8,7 @@
       <div class="navbar-user" *ngIf="currentUser">
         <div class="user-info">
           <p class="user-name">{{ currentUser.nameLastName }}</p>
-          <p class="shop-name">{{ currentUser.nameShop }}</p>
+          <p *ngIf="!currentUser.isAdmin" class="shop-name">{{ currentUser.nameShop }}</p>
         </div>
         <button (click)="logout()" class="logout-button">Cerrar Sesión</button>
       </div>

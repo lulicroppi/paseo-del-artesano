@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { FirestoreService } from '../../core/services/firestore.service';
+import { AuthService } from '../../core/services/auth.service';
 
 interface Event {
   id: string;
@@ -34,54 +36,40 @@ export class UserMySignupsComponent implements OnInit {
   selectedFilter: string = 'all';
   message: string = '';
   messageType: 'success' | 'error' = 'success';
+  private firestoreService = inject(FirestoreService);
+  private authService = inject(AuthService);
 
   ngOnInit(): void {
-    this.loadUserSignups();
-  }
-
-  loadUserSignups(): void {
-    // Load user's registered events
-    const allEvents: Event[] = [
-      { id: '1', eventName: 'Workshop Angular', date: '2025-01-15', time: '10:00', enabled: true },
-      { id: '2', eventName: 'Artisan Fair', date: '2025-01-20', time: '09:00', enabled: true },
-      { id: '3', eventName: 'Crafts Exhibition', date: '2025-02-01', time: '11:00', enabled: false }
-    ];
-
-    // Sample user signups - user is registered for all events
-    this.userSignups = [
-      {
-        id: '1',
-        eventId: '1',
-        eventName: 'Workshop Angular',
-        date: '2025-01-15',
-        time: '10:00',
-        enabled: true,
-        status: 'confirmed',
-        registrationDate: '2024-12-15'
-      },
-      {
-        id: '2',
-        eventId: '2',
-        eventName: 'Artisan Fair',
-        date: '2025-01-20',
-        time: '09:00',
-        enabled: true,
-        status: 'pending',
-        registrationDate: '2024-12-18'
-      },
-      {
-        id: '3',
-        eventId: '3',
-        eventName: 'Crafts Exhibition',
-        date: '2025-02-01',
-        time: '11:00',
-        enabled: false,
-        status: 'attended',
-        registrationDate: '2024-11-20'
+    // Listen for current user and load their inscriptions
+    this.authService.currentUser$.subscribe(user => {
+      if (user && (user as any).dni) {
+        this.loadUserSignups((user as any).dni);
+      } else {
+        this.userSignups = [];
+        this.filteredSignups = [];
       }
-    ];
+    });
+  }
+  loadUserSignups(dni: number): void {
+    this.firestoreService.getUserInscriptions(String(dni)).subscribe(inscriptions => {
+      // Map Firestore inscriptions to UserSignup model
+      this.userSignups = inscriptions.map((ins: any) => ({
+        id: ins.id,
+        eventId: ins.eventId?.toString() ?? (ins.idEvent ? String(ins.idEvent) : ''),
+        eventName: ins.eventName ?? ins.nameShop ?? 'Evento',
+        date: ins.eventDate ? new Date(ins.eventDate.seconds ? ins.eventDate.seconds * 1000 : ins.eventDate).toISOString() : (ins.fecha ?? ''),
+        time: ins.time ?? '',
+        enabled: ins.enabled ?? true,
+        status: ins.status ?? (ins.assisted ? 'attended' : 'confirmed'),
+        registrationDate: ins.registrationDate ?? (ins.createdAt ?? new Date().toISOString())
+      } as UserSignup));
 
-    this.filterSignups();
+      this.filterSignups();
+    }, err => {
+      console.error('Error loading user inscriptions:', err);
+      this.userSignups = [];
+      this.filteredSignups = [];
+    });
   }
 
   filterSignups(): void {
@@ -115,13 +103,18 @@ export class UserMySignupsComponent implements OnInit {
       this.showMessage('No puedes cancelar un evento deshabilitado.', 'error');
       return;
     }
-
-    const index = this.userSignups.findIndex(s => s.id === signup.id);
-    if (index > -1) {
-      this.userSignups.splice(index, 1);
-      this.filterSignups();
+    // Delete inscription from Firestore
+    this.firestoreService.deleteInscription(signup.id).then(() => {
       this.showMessage('Inscripción cancelada correctamente.', 'success');
-    }
+      // refresh list
+      const currentUser = this.authService.getCurrentUser();
+      if (currentUser && (currentUser as any).dni) {
+        this.loadUserSignups((currentUser as any).dni);
+      }
+    }).catch(err => {
+      console.error('Error deleting inscription:', err);
+      this.showMessage('Error al cancelar la inscripción.', 'error');
+    });
   }
 
   showMessage(msg: string, type: 'success' | 'error'): void {

@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { FirestoreService } from '../../core/services/firestore.service';
 
 interface Event {
   id: string;
@@ -30,6 +31,7 @@ export class AdminAttendanceComponent implements OnInit {
   attendees: Attendee[] = [];
   filteredAttendees: Attendee[] = [];
   selectedEventId: string = '';
+  private firestore = inject(FirestoreService);
 
   ngOnInit(): void {
     this.loadEvents();
@@ -37,32 +39,31 @@ export class AdminAttendanceComponent implements OnInit {
   }
 
   loadEvents(): void {
-    // Load events from admin-dates (only enabled events)
-    const allEvents: Event[] = [
-      { id: '1', eventName: 'Workshop Angular', date: '2025-01-15', time: '10:00', enabled: true },
-      { id: '2', eventName: 'Artisan Fair', date: '2025-01-20', time: '09:00', enabled: true },
-      { id: '3', eventName: 'Crafts Exhibition', date: '2025-02-01', time: '11:00', enabled: false }
-    ];
-    this.events = allEvents
-      .filter(e => e.enabled)
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    if (this.events.length > 0) {
-      this.selectedEventId = this.events[0].id;
-    }
+    // Load events from Firestore
+    this.firestore.getAllEvents().subscribe(events => {
+      this.events = events
+        .map((e: any) => ({ id: e.id, eventName: e.eventName ?? e.name, date: e.date ?? '', time: e.time ?? '', enabled: e.enabled ?? true }))
+        .filter((e: any) => e.enabled)
+        .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      if (this.events.length > 0) {
+        this.selectedEventId = this.events[0].id;
+      }
+      this.filterAttendeesByEvent();
+    });
   }
 
   loadAttendees(): void {
-    // Load sample attendees data
-    this.attendees = [
-      { id: '1', name: 'Juan García', emprendimiento: 'Cerámica Artesanal', eventId: '1', status: 'Anotado' },
-      { id: '2', name: 'María López', emprendimiento: 'Textiles Andinos', eventId: '1', status: 'Anotado' },
-      { id: '3', name: 'Carlos Ruiz', emprendimiento: 'Joyería Tradicional', eventId: '1', status: 'Anotado' },
-      { id: '4', name: 'Ana Martínez', emprendimiento: 'Artesanía en Madera', eventId: '1', status: 'Anotado' },
-      { id: '5', name: 'Pedro Sánchez', emprendimiento: 'Productos Orgánicos', eventId: '2', status: 'Anotado' },
-      { id: '6', name: 'Laura García', emprendimiento: 'Bordados Étnicos', eventId: '2', status: 'Anotado' },
-      { id: '7', name: 'Roberto López', emprendimiento: 'Trabajos en Cuero', eventId: '2', status: 'Anotado' }
-    ];
-    this.filterAttendeesByEvent();
+    // Load inscriptions from Firestore and map to attendees
+    this.firestore.getAllInscriptions().subscribe(inscriptions => {
+      this.attendees = inscriptions.map((ins: any) => ({
+        id: ins.id,
+        name: ins.name ?? ins.nameLastName ?? ins.userName ?? 'Participante',
+        emprendimiento: ins.nameShop ?? ins.emprendimiento ?? '',
+        eventId: ins.eventId?.toString() ?? (ins.idEvent ? String(ins.idEvent) : ''),
+        status: ins.status === 'Asistio' || ins.assisted ? 'Asistio' : (ins.status === 'No asistio' ? 'No asistio' : 'Anotado')
+      } as Attendee));
+      this.filterAttendeesByEvent();
+    }, err => console.error('Error loading inscriptions:', err));
   }
 
   filterAttendeesByEvent(): void {
@@ -87,14 +88,18 @@ export class AdminAttendanceComponent implements OnInit {
 
   markAttended(attendee: Attendee): void {
     attendee.status = 'Asistio';
+    // Persist change to Firestore
+    this.firestore.updateInscription(attendee.id, { status: 'Asistio', assisted: true }).catch(err => console.error(err));
   }
 
   markNotAttended(attendee: Attendee): void {
     attendee.status = 'No asistio';
+    this.firestore.updateInscription(attendee.id, { status: 'No asistio', assisted: false }).catch(err => console.error(err));
   }
 
   resetToRegistered(attendee: Attendee): void {
     attendee.status = 'Anotado';
+    this.firestore.updateInscription(attendee.id, { status: 'Anotado' }).catch(err => console.error(err));
   }
 
   getEventName(eventId: string): string {

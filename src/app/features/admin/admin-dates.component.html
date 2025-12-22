@@ -41,7 +41,7 @@
         <td>
           <!-- Enable/Disable toggle -->
           <label class="toggle-switch">
-            <input type="checkbox" [(ngModel)]="dateItem.enabled" name="enabled_{{ dateItem.id }}" />
+            <input type="checkbox" [(ngModel)]="dateItem.enabled" (change)="updateDateStatus(dateItem)" name="enabled_{{ dateItem.id }}" />
             <span class="slider"></span>
           </label>
           {{ dateItem.enabled ? 'Activo' : 'Inactivo' }}

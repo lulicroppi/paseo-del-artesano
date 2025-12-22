@@ -46,16 +46,14 @@ export class LoginComponent {
     const { dni, password } = this.loginForm.value;
 
     // Simulate async operation
-    setTimeout(() => {
-      const success = this.authService.login(dni, password);
-
+    (async () => {
+      const success = await this.authService.login(Number(dni), password);
       if (success) {
-        // Navigate to home on successful login
         this.router.navigate(['/home']);
       } else {
         this.errorMessage = 'DNI o contraseña incorrectos';
         this.isLoading = false;
       }
-    }, 500);
+    })();
   }
 }
