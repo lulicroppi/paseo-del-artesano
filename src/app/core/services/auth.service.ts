@@ -23,22 +23,22 @@ export class AuthService {
    */
   private mockUsers: User[] = [
     {
-      nameLastName: 'Juan García',
-      dni: '12345678',
-      password: 'admin123',
-      nameShop: 'Taller García',
+      nameLastName: 'Lucia Croppi',
+      dni: 40317458,
+      password: 'test123',
+      nameShop: 'EternalGlow Funes',
       isAdmin: true
     },
     {
       nameLastName: 'María López',
-      dni: '87654321',
+      dni: 87654321,
       password: 'user123',
       nameShop: 'Cerámica López',
       isAdmin: false
     },
     {
       nameLastName: 'Carlos Rodríguez',
-      dni: '11223344',
+      dni: 11223344,
       password: 'user123',
       nameShop: 'Artesanías Rodríguez',
       isAdmin: false
@@ -60,8 +60,8 @@ export class AuthService {
    * @param password - User password
    * @returns true if login successful, false otherwise
    */
-  login(dni: string, password: string): boolean {
-    const user = this.mockUsers.find(u => u.dni === dni && u.password === password);
+  login(dni: number, password: string): boolean {
+    const user = this.mockUsers.find(u => u.dni === Number(dni) && u.password === password);
     
     if (user) {
       // Remove password before storing in state

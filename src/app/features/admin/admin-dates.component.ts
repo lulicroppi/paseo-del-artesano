@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { FirestoreService } from '../../core/services/firestore.service';
 
 interface EventDate {
   id: string;
@@ -30,6 +31,10 @@ export class AdminDatesComponent implements OnInit, OnDestroy {
     // Check every minute if events should be disabled
     this.checkInterval = setInterval(() => this.checkEventStatus(), 60000);
   }
+
+  constructor(private firestore: FirestoreService) {
+  this.firestore.testConnection(); // Opens browser console with all data
+}
 
   ngOnDestroy(): void {
     if (this.checkInterval) {
