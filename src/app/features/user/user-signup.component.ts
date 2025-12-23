@@ -33,9 +33,10 @@ export class UserSignupComponent implements OnInit {
     this.loadUserSignups();
   }
 
-  loadEnabledEvents(): void {
-    // Load events from Firestore
-    this.firestore.getAllEvents().subscribe(events => {
+  async loadEnabledEvents(): Promise<void> {
+    // Load events from Firestore (one-shot read)
+    try {
+      const events = await this.firestore.getAllEvents();
       this.availableEvents = events
         .map(e => ({
           id: e.id,
@@ -50,20 +51,21 @@ export class UserSignupComponent implements OnInit {
           const dateTimeB = new Date(`${b.date}T${b.time}`).getTime();
           return dateTimeB - dateTimeA; // Latest first
         });
-    }, err => {
+    } catch (err) {
       console.error('Error loading events from Firestore:', err);
-    });
+    }
   }
 
-  loadUserSignups(): void {
-    // Load current user's inscriptions
+  async loadUserSignups(): Promise<void> {
+    // Load current user's inscriptions (one-shot read)
     const currentUser = this.authService.getCurrentUser();
     if (currentUser?.dni) {
-      this.firestore.getUserInscriptions(String(currentUser.dni)).subscribe(inscriptions => {
+      try {
+        const inscriptions = await this.firestore.getUserInscriptions(String(currentUser.dni));
         this.userSignups = new Set(inscriptions.map(ins => ins.eventId?.toString() ?? String(ins.idEvent)));
-      }, err => {
+      } catch (err) {
         console.error('Error loading user signups:', err);
-      });
+      }
     }
   }
 
@@ -98,28 +100,23 @@ export class UserSignupComponent implements OnInit {
     }
   }
 
-  cancelSignup(event: Event): void {
-    if (this.userSignups.has(event.id)) {
-      // Delete inscription from Firestore
-      const currentUser = this.authService.getCurrentUser();
-      if (!currentUser?.dni) return;
+  async cancelSignup(event: Event): Promise<void> {
+    if (!this.userSignups.has(event.id)) return;
 
-      this.firestore.getAllInscriptions().subscribe(inscriptions => {
-        const inscription = inscriptions.find(ins => 
-          ins.eventId === event.id && ins.userId === String(currentUser.dni)
-        );
-        if (inscription) {
-          this.firestore.deleteInscription(inscription.id).then(() => {
-            this.userSignups.delete(event.id);
-            this.showMessage(`Te has dado de baja`);
-          }).catch(err => {
-            console.error('Error deleting inscription:', err);
-            this.showMessage('Error al desinscribirse. Intenta de nuevo.');
-          });
-        }
-      }, err => {
-        console.error('Error fetching inscriptions:', err);
-      });
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser?.dni) return;
+
+    try {
+      const inscriptions = await this.firestore.getAllInscriptions();
+      const inscription = inscriptions.find(ins => ins.eventId === event.id && ins.userId === String(currentUser.dni));
+      if (inscription) {
+        await this.firestore.deleteInscription(inscription.id);
+        this.userSignups.delete(event.id);
+        this.showMessage(`Te has dado de baja`);
+      }
+    } catch (err) {
+      console.error('Error fetching/deleting inscription:', err);
+      this.showMessage('Error al desinscribirse. Intenta de nuevo.');
     }
   }
 

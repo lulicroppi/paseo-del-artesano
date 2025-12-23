@@ -55,9 +55,10 @@ export class AdminDatesComponent implements OnInit, OnDestroy {
     };
   }
 
-  loadDates(): void {
-    // Load existing dates from Firestore
-    this.firestore.getAllEvents().subscribe(events => {
+  async loadDates(): Promise<void> {
+    // Load existing dates from Firestore (one-shot read)
+    try {
+      const events = await this.firestore.getAllEvents();
       this.datesList = events.map(e => ({
         id: e.id,
         eventName: e.eventName ?? e.name ?? 'Evento',
@@ -67,9 +68,9 @@ export class AdminDatesComponent implements OnInit, OnDestroy {
       } as EventDate));
       this.datesList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       this.checkEventStatus();
-    }, err => {
+    } catch (err) {
       console.error('Error loading events from Firestore:', err);
-    });
+    }
   }
 
   checkEventStatus(): void {

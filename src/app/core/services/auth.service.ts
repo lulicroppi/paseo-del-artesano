@@ -1,6 +1,6 @@
 import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { User } from '../models/user.model';
 import { FirestoreService } from './firestore.service';
 
@@ -35,11 +35,11 @@ export class AuthService {
 
   /**
    * Login using Firestore (dni + password)
+   * One-shot read - no subscriptions
    */
   async login(dni: number, password: string): Promise<boolean> {
     try {
-      const users$ = this.firestoreService.getUserByDni(Number(dni));
-      const users = await firstValueFrom(users$);
+      const users = await this.firestoreService.getUserByDni(Number(dni));
 
       if (!users || users.length === 0) return false;
 
