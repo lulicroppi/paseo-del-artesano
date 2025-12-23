@@ -25,6 +25,7 @@ export class LoginComponent {
       dni: ['', [Validators.required]],
       password: ['', [Validators.required]]
     });
+    console.log('7VII | 1.0');
   }
 
   get dni() {
