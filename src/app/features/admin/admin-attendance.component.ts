@@ -34,6 +34,7 @@ export class AdminAttendanceComponent implements OnInit {
   private firestore = inject(FirestoreService);
 
   ngOnInit(): void {
+    // Initialize using cached-or-fetch reads (no extra button needed)
     this.loadEvents();
     this.loadAttendees();
   }
@@ -55,6 +56,22 @@ export class AdminAttendanceComponent implements OnInit {
     }
   }
 
+  async loadEventsFromCache(): Promise<void> {
+    try {
+      const events = await this.firestore.getCachedAllEvents();
+      this.events = events
+        .map((e: any) => ({ id: e.id, eventName: e.eventName ?? e.name, date: e.date ?? '', time: e.time ?? '', enabled: e.enabled ?? true }))
+        .filter((e: any) => e.enabled)
+        .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      if (this.events.length > 0 && !this.selectedEventId) {
+        this.selectedEventId = this.events[0].id;
+      }
+      this.filterAttendeesByEvent();
+    } catch (err) {
+      console.error('Error loading cached events:', err);
+    }
+  }
+
   async loadAttendees(): Promise<void> {
     try {
       // Load inscriptions from Firestore and map to attendees (one-shot read)
@@ -70,6 +87,26 @@ export class AdminAttendanceComponent implements OnInit {
     } catch (err) {
       console.error('Error loading inscriptions:', err);
     }
+  }
+
+  async loadAttendeesFromCache(): Promise<void> {
+    try {
+      const inscriptions = await this.firestore.getCachedAllInscriptions();
+      this.attendees = inscriptions.map((ins: any) => ({
+        id: ins.id,
+        nameLastName: ins.nameLastName ?? ins.userName ?? 'Participante',
+        nameShop: ins.nameShop ?? ins.emprendimiento ?? '',
+        eventId: ins.eventId?.toString() ?? (ins.idEvent ? String(ins.idEvent) : ''),
+        status: ins.status === 'Asistio' || ins.assisted ? 'Asistio' : (ins.status === 'No asistio' ? 'No asistio' : 'Anotado')
+      } as Attendee));
+      this.filterAttendeesByEvent();
+    } catch (err) {
+      console.error('Error loading cached inscriptions:', err);
+    }
+  }
+
+  refreshAttendance(): Promise<void[]> {
+    return Promise.all([this.loadEvents(), this.loadAttendees()]);
   }
 
   filterAttendeesByEvent(): void {

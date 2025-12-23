@@ -2,8 +2,10 @@
   <h2>Gestión de Fechas</h2>
   <p>Panel de administración para gestionar las fechas de los eventos.</p>
   
-  <!-- Create new date button -->
-  <button class="btn-create-date" (click)="openCreateForm()">+ Crear Nueva Fecha</button>
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn-create-date" (click)="openCreateForm()">+ Crear Nueva Fecha</button>
+  </div>
   
   <!-- Create/Edit form -->
   <div class="date-form" *ngIf="showForm">

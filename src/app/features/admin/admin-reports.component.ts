@@ -54,6 +54,7 @@ export class AdminReportsComponent implements OnInit {
   topAbsence: EmprendimientoStats[] = [];
 
   ngOnInit(): void {
+    // Initialize using cached-or-fetch reads (no extra button needed)
     this.loadEvents();
     this.loadAttendees();
   }
@@ -77,6 +78,24 @@ export class AdminReportsComponent implements OnInit {
     }
   }
 
+  async loadEventsFromCache(): Promise<void> {
+    try {
+      const events = await this.firestore.getCachedAllEvents();
+      this.events = (events ?? [])
+        .map((e: any) => ({
+          id: String(e.id ?? ''),
+          eventName: e.eventName ?? e.name ?? '',
+          date: e.date ?? '',
+          time: e.time ?? '',
+          enabled: e.enabled ?? true
+        }))
+        .filter((e: any) => e.enabled);
+      this.generateReports();
+    } catch (err) {
+      console.error('Error loading cached events:', err);
+    }
+  }
+
   async loadAttendees(): Promise<void> {
     try {
       const inscriptions = await this.firestore.getAllInscriptions();
@@ -95,6 +114,29 @@ export class AdminReportsComponent implements OnInit {
     } catch (err) {
       console.error('Error loading inscriptions from Firestore:', err);
     }
+  }
+
+  async loadAttendeesFromCache(): Promise<void> {
+    try {
+      const inscriptions = await this.firestore.getCachedAllInscriptions();
+      this.attendees = (inscriptions ?? []).map((ins: any) => ({
+        id: String(ins.id ?? ''),
+        name: ins.name ?? ins.nameLastName ?? ins.userName ?? 'Participante',
+        emprendimiento: (ins.nameShop ?? ins.emprendimiento ?? '').trim(),
+        eventId: ins.eventId?.toString() ?? (ins.idEvent ? String(ins.idEvent) : ''),
+        status:
+          ins.status === 'Asistio' || ins.assisted
+            ? 'Asistio'
+            : (ins.status === 'No asistio' ? 'No asistio' : 'Anotado')
+      } as Attendee));
+      this.generateReports();
+    } catch (err) {
+      console.error('Error loading cached inscriptions:', err);
+    }
+  }
+
+  refreshReports(): Promise<void[]> {
+    return Promise.all([this.loadEvents(), this.loadAttendees()]);
   }
 
   generateReports(): void {

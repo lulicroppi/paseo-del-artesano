@@ -28,6 +28,7 @@ export class AdminDatesComponent implements OnInit, OnDestroy {
   private firestore = inject(FirestoreService);
 
   ngOnInit(): void {
+    // Initialize using cached-or-fetch read (no extra button needed)
     this.loadDates();
     this.checkEventStatus();
     // Check every minute if events should be disabled
@@ -71,6 +72,27 @@ export class AdminDatesComponent implements OnInit, OnDestroy {
     } catch (err) {
       console.error('Error loading events from Firestore:', err);
     }
+  }
+
+  async loadDatesFromCache(): Promise<void> {
+    try {
+      const events = await this.firestore.getCachedAllEvents();
+      this.datesList = events.map(e => ({
+        id: e.id,
+        eventName: e.eventName ?? e.name ?? 'Evento',
+        date: e.date ?? (e.eventDate ? new Date(e.eventDate.seconds ? e.eventDate.seconds * 1000 : e.eventDate).toISOString().split('T')[0] : ''),
+        time: e.time ?? '',
+        enabled: e.enabled ?? true
+      } as EventDate));
+      this.datesList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      this.checkEventStatus();
+    } catch (err) {
+      console.error('Error loading cached events:', err);
+    }
+  }
+
+  refreshDates(): Promise<void> {
+    return this.loadDates();
   }
 
   checkEventStatus(): void {
