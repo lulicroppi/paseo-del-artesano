@@ -45,7 +45,6 @@ export class AdminAttendanceComponent implements OnInit {
       const events = await this.firestore.getAllEvents();
       this.events = events
         .map((e: any) => ({ id: e.id, eventName: e.eventName ?? e.name, date: e.date ?? '', time: e.time ?? '', enabled: e.enabled ?? true }))
-        .filter((e: any) => e.enabled)
         .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
       if (this.events.length > 0) {
         this.selectedEventId = this.events[0].id;
