@@ -70,7 +70,7 @@ export class AdminReportsComponent implements OnInit {
           time: e.time ?? '',
           enabled: e.enabled ?? true
         }))
-        .filter((e: any) => e.enabled);
+        // .filter((e: any) => e.enabled);
 
       this.generateReports();
     } catch (err) {
@@ -89,7 +89,7 @@ export class AdminReportsComponent implements OnInit {
           time: e.time ?? '',
           enabled: e.enabled ?? true
         }))
-        .filter((e: any) => e.enabled);
+        // .filter((e: any) => e.enabled);
       this.generateReports();
     } catch (err) {
       console.error('Error loading cached events:', err);
