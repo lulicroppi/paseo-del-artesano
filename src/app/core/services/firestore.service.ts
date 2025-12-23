@@ -3,20 +3,22 @@ import { isPlatformBrowser } from '@angular/common';
 import {
   Firestore,
   collection,
-  collectionData,
   doc,
-  docData,
   addDoc,
   updateDoc,
   deleteDoc,
   query,
-  where
+  where,
+  getDocs,
+  getDoc
 } from '@angular/fire/firestore';
-import { Observable, of } from 'rxjs';
 import { User } from '../models/user.model';
 
 /**
  * FirestoreService - Handles Firestore database operations
+ * 
+ * IMPORTANT: All reads are one-shot (getDocs/getDoc) to minimize Firestore consumption.
+ * No live subscriptions are used.
  *
  * IMPORTANT (SSR / Prerender):
  * - During SSR/prerender, Firestore calls can timeout and fail builds.
@@ -35,81 +37,89 @@ export class FirestoreService {
   }
 
   /**
-   * Fetch all users from Firestore
+   * Fetch all users from Firestore (one-shot read)
    * Collection: 'users'
    */
-  getAllUsers(): Observable<any[]> {
-    if (!this.isBrowser) return of([]);
+  async getAllUsers(): Promise<any[]> {
+    if (!this.isBrowser) return [];
     console.log('Fetching all users from Firestore...');
-    return collectionData(collection(this.firestore, 'users'), { idField: 'id' }) as Observable<any[]>;
+    const snapshot = await getDocs(collection(this.firestore, 'users'));
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
 
   /**
-   * Fetch specific user by ID/DNI
+   * Fetch specific user by ID/DNI (one-shot read)
    */
-  getUserById(userId: string): Observable<any> {
-    if (!this.isBrowser) return of(null);
+  async getUserById(userId: string): Promise<any | null> {
+    if (!this.isBrowser) return null;
     console.log(`Fetching user with ID: ${userId}`);
-    return docData(doc(this.firestore, 'users', userId), { idField: 'id' }) as Observable<any>;
+    const docSnapshot = await getDoc(doc(this.firestore, 'users', userId));
+    return docSnapshot.exists() ? { id: docSnapshot.id, ...docSnapshot.data() } : null;
   }
 
   /**
-   * Fetch user by DNI field
+   * Fetch user by DNI field (one-shot read)
    */
-  getUserByDni(dni: number): Observable<any[]> {
-    if (!this.isBrowser) return of([]);
+  async getUserByDni(dni: number): Promise<any[]> {
+    if (!this.isBrowser) return [];
     console.log(`Querying user by dni: ${dni}`);
     const q = query(collection(this.firestore, 'users'), where('dni', '==', Number(dni)));
-    return collectionData(q, { idField: 'id' }) as Observable<any[]>;
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
 
   /**
-   * Fetch all events from Firestore
+   * Fetch all events from Firestore (one-shot read)
    * Collection: 'events'
    */
-  getAllEvents(): Observable<any[]> {
-    if (!this.isBrowser) return of([]);
+  async getAllEvents(): Promise<any[]> {
+    if (!this.isBrowser) return [];
     console.log('Fetching all events from Firestore...');
-    return collectionData(collection(this.firestore, 'events'), { idField: 'id' }) as Observable<any[]>;
+    const snapshot = await getDocs(collection(this.firestore, 'events'));
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
 
   /**
-   * Fetch event by ID
+   * Fetch event by ID (one-shot read)
    */
-  getEventById(eventId: string): Observable<any> {
-    if (!this.isBrowser) return of(null);
+  async getEventById(eventId: string): Promise<any | null> {
+    if (!this.isBrowser) return null;
     console.log(`Fetching event with ID: ${eventId}`);
-    return docData(doc(this.firestore, 'events', eventId), { idField: 'id' }) as Observable<any>;
+    const docSnapshot = await getDoc(doc(this.firestore, 'events', eventId));
+    return docSnapshot.exists() ? { id: docSnapshot.id, ...docSnapshot.data() } : null;
   }
 
   /**
-   * Fetch all inscriptions from Firestore
+   * Fetch all inscriptions from Firestore (one-shot read)
    * Collection: 'inscriptions'
    */
-  getAllInscriptions(): Observable<any[]> {
-    if (!this.isBrowser) return of([]);
+  async getAllInscriptions(): Promise<any[]> {
+    if (!this.isBrowser) return [];
     console.log('Fetching all inscriptions from Firestore...');
-    return collectionData(collection(this.firestore, 'inscriptions'), { idField: 'id' }) as Observable<any[]>;
+    const snapshot = await getDocs(collection(this.firestore, 'inscriptions'));
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
 
   /**
-   * Fetch inscriptions for a specific user
+   * Fetch inscriptions for a specific user (one-shot read)
    */
-  getUserInscriptions(userId: string): Observable<any[]> {
-    if (!this.isBrowser) return of([]);
+  async getUserInscriptions(userId: string): Promise<any[]> {
+    if (!this.isBrowser) return [];
     console.log(`Fetching inscriptions for user: ${userId}`);
     const q = query(collection(this.firestore, 'inscriptions'), where('userId', '==', userId));
-    return collectionData(q, { idField: 'id' }) as Observable<any[]>;
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
 
   /**
-   * Fetch inscriptions for a specific event
+   * Fetch inscriptions for a specific event (one-shot read)
    */
-  getEventInscriptions(eventId: string): Observable<any[]> {
-    if (!this.isBrowser) return of([]);
+  async getEventInscriptions(eventId: string): Promise<any[]> {
+    if (!this.isBrowser) return [];
     console.log(`Fetching inscriptions for event: ${eventId}`);
     const q = query(collection(this.firestore, 'inscriptions'), where('eventId', '==', eventId));
-    return collectionData(q, { idField: 'id' }) as Observable<any[]>;
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
 
   /**

@@ -58,8 +58,9 @@ export class AdminReportsComponent implements OnInit {
     this.loadAttendees();
   }
 
-  loadEvents(): void {
-    this.firestore.getAllEvents().subscribe(events => {
+  async loadEvents(): Promise<void> {
+    try {
+      const events = await this.firestore.getAllEvents();
       this.events = (events ?? [])
         .map((e: any) => ({
           id: String(e.id ?? ''),
@@ -71,11 +72,14 @@ export class AdminReportsComponent implements OnInit {
         .filter((e: any) => e.enabled);
 
       this.generateReports();
-    });
+    } catch (err) {
+      console.error('Error loading events from Firestore:', err);
+    }
   }
 
-  loadAttendees(): void {
-    this.firestore.getAllInscriptions().subscribe(inscriptions => {
+  async loadAttendees(): Promise<void> {
+    try {
+      const inscriptions = await this.firestore.getAllInscriptions();
       this.attendees = (inscriptions ?? []).map((ins: any) => ({
         id: String(ins.id ?? ''),
         name: ins.name ?? ins.nameLastName ?? ins.userName ?? 'Participante',
@@ -88,7 +92,9 @@ export class AdminReportsComponent implements OnInit {
       } as Attendee));
 
       this.generateReports();
-    });
+    } catch (err) {
+      console.error('Error loading inscriptions from Firestore:', err);
+    }
   }
 
   generateReports(): void {

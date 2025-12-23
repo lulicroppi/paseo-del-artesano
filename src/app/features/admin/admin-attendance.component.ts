@@ -38,9 +38,10 @@ export class AdminAttendanceComponent implements OnInit {
     this.loadAttendees();
   }
 
-  loadEvents(): void {
-    // Load events from Firestore
-    this.firestore.getAllEvents().subscribe(events => {
+  async loadEvents(): Promise<void> {
+    try {
+      // Load events from Firestore (one-shot read)
+      const events = await this.firestore.getAllEvents();
       this.events = events
         .map((e: any) => ({ id: e.id, eventName: e.eventName ?? e.name, date: e.date ?? '', time: e.time ?? '', enabled: e.enabled ?? true }))
         .filter((e: any) => e.enabled)
@@ -49,12 +50,15 @@ export class AdminAttendanceComponent implements OnInit {
         this.selectedEventId = this.events[0].id;
       }
       this.filterAttendeesByEvent();
-    });
+    } catch (err) {
+      console.error('Error loading events from Firestore:', err);
+    }
   }
 
-  loadAttendees(): void {
-    // Load inscriptions from Firestore and map to attendees
-    this.firestore.getAllInscriptions().subscribe(inscriptions => {
+  async loadAttendees(): Promise<void> {
+    try {
+      // Load inscriptions from Firestore and map to attendees (one-shot read)
+      const inscriptions = await this.firestore.getAllInscriptions();
       this.attendees = inscriptions.map((ins: any) => ({
         id: ins.id,
         nameLastName: ins.nameLastName ?? ins.userName ?? 'Participante',
@@ -63,7 +67,9 @@ export class AdminAttendanceComponent implements OnInit {
         status: ins.status === 'Asistio' || ins.assisted ? 'Asistio' : (ins.status === 'No asistio' ? 'No asistio' : 'Anotado')
       } as Attendee));
       this.filterAttendeesByEvent();
-    }, err => console.error('Error loading inscriptions:', err));
+    } catch (err) {
+      console.error('Error loading inscriptions:', err);
+    }
   }
 
   filterAttendeesByEvent(): void {

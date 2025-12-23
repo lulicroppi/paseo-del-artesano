@@ -51,8 +51,11 @@ export class UserMySignupsComponent implements OnInit {
       }
     });
   }
-  loadUserSignups(dni: number): void {
-    this.firestoreService.getUserInscriptions(String(dni)).subscribe(inscriptions => {
+
+  async loadUserSignups(dni: number): Promise<void> {
+    try {
+      // One-shot read - fetch inscriptions once
+      const inscriptions = await this.firestoreService.getUserInscriptions(String(dni));
       // Map Firestore inscriptions to UserSignup model
       this.userSignups = inscriptions.map((ins: any) => ({
         id: ins.id,
@@ -66,11 +69,11 @@ export class UserMySignupsComponent implements OnInit {
       } as UserSignup));
 
       this.filterSignups();
-    }, err => {
+    } catch (err) {
       console.error('Error loading user inscriptions:', err);
       this.userSignups = [];
       this.filteredSignups = [];
-    });
+    }
   }
 
   filterSignups(): void {
