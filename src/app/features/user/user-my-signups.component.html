@@ -2,24 +2,6 @@
   <h2>Mis Inscripciones</h2>
   <p>Visualiza tus eventos registrados.</p>
 
-  <!-- Filter section -->
-  <div class="filter-section">
-    <label for="filterSelect">Filtrar por:</label>
-    <select
-      id="filterSelect"
-      [(ngModel)]="selectedFilter"
-      (change)="onFilterChange()"
-      class="filter-select"
-    >
-      <option value="all">Todos</option>
-      <option value="enabled">Eventos Activos</option>
-      <option value="disabled">Eventos Cerrados</option>
-      <option value="confirmed">Confirmado</option>
-      <option value="pending">Pendiente</option>
-      <option value="attended">Asistido</option>
-    </select>
-  </div>
-
   <!-- Message display -->
   <div *ngIf="message" class="message" [ngClass]="'message-' + messageType">
     {{ message }}

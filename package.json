@@ -7,7 +7,10 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:paseo-artesanos": "node dist/paseo-artesanos/server/server.mjs"
+    "serve:ssr:paseo-artesanos": "node dist/paseo-artesanos/server/server.mjs",
+    "build:gh": "ng run paseo-artesanos:build-spa",
+    "prep:gh": "powershell -Command \"Copy-Item dist\\paseo-artesanos\\browser\\index.html dist\\paseo-artesanos\\browser\\404.html -Force; New-Item -ItemType File dist\\paseo-artesanos\\browser\\.nojekyll -Force | Out-Null\"",
+    "deploy:gh": "npm run build:gh && npm run prep:gh && npx angular-cli-ghpages --dir=dist/paseo-artesanos/browser"
   },
   "prettier": {
     "printWidth": 100,

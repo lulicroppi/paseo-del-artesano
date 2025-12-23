@@ -44,10 +44,10 @@
       <ng-container *ngIf="selectedTab === 'attendance'">
         <app-admin-attendance></app-admin-attendance>
       </ng-container>
-      <ng-container *ngIf="selectedTab === 'signup'">
+      <ng-container *ngIf="selectedTab === 'signup' && !currentUser?.isAdmin">
         <app-user-signup></app-user-signup>
       </ng-container>
-      <ng-container *ngIf="selectedTab === 'my-signups'">
+      <ng-container *ngIf="selectedTab === 'my-signups' && !currentUser?.isAdmin">
         <app-user-my-signups></app-user-my-signups>
       </ng-container>
     </section>
