@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en" data-beasties-container><head>
+export default `<!DOCTYPE html><html lang="en" data-beasties-container><head>
   <meta charset="utf-8">
   <title>PaseoArtesanos</title>
   <base href="/">
@@ -11,4 +11,4 @@
   <app-root ng-version="20.3.15" _nghost-ng-c3984273398 ngh="1" ng-server-context="ssg"><router-outlet _ngcontent-ng-c3984273398></router-outlet><app-login _nghost-ng-c2671006189 ngh="0"><div _ngcontent-ng-c2671006189 class="login-container"><div _ngcontent-ng-c2671006189 class="login-card"><h1 _ngcontent-ng-c2671006189>Paseo del Artesano</h1><h2 _ngcontent-ng-c2671006189>Iniciar Sesión</h2><form _ngcontent-ng-c2671006189 novalidate class="ng-untouched ng-pristine ng-invalid" jsaction="submit:;"><div _ngcontent-ng-c2671006189 class="form-group"><label _ngcontent-ng-c2671006189 for="dni">DNI</label><input _ngcontent-ng-c2671006189 type="text" id="dni" formcontrolname="dni" placeholder="Ingrese su DNI" class="ng-untouched ng-pristine ng-invalid" value jsaction="input:;blur:;compositionstart:;compositionend:;"><!----></div><div _ngcontent-ng-c2671006189 class="form-group"><label _ngcontent-ng-c2671006189 for="password">Contraseña</label><input _ngcontent-ng-c2671006189 type="password" id="password" formcontrolname="password" placeholder="Ingrese su contraseña" class="ng-untouched ng-pristine ng-invalid" value jsaction="input:;blur:;compositionstart:;compositionend:;"><!----></div><!----><button _ngcontent-ng-c2671006189 type="submit" class="login-button" disabled> Iniciar Sesión </button></form></div></div></app-login><!----></app-root>
 <script src="polyfills-5CFQRCPP.js" type="module"></script><script src="main-ZYKMXMWV.js" type="module"></script>
 
-<script id="ng-state" type="application/json">{"__nghData__":[{"t":{"11":"t0","16":"t1","17":"t2"},"c":{"11":[],"16":[],"17":[]}},{"c":{"0":[{"i":"c2671006189","r":1}]}}]}</script></body></html>
+<script id="ng-state" type="application/json">{"__nghData__":[{"t":{"11":"t0","16":"t1","17":"t2"},"c":{"11":[],"16":[],"17":[]}},{"c":{"0":[{"i":"c2671006189","r":1}]}}]}</script></body></html>`;
