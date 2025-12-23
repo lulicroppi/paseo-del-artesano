@@ -232,17 +232,5 @@ export class AdminReportsComponent implements OnInit {
     return Math.round((attended / total) * 100);
   }
 
-  addUser() {
-    this.firestore.createUser({
-      dni: 16942395, // Editar a gusto
-      nameLastName: 'Rut Golden', // Editar a gusto
-      nameShop: 'GoldenGirls', // Editar a gusto
-      isAdmin: false, // Editar a gusto
-      password: '123123' // Editar a gusto
-    }).then(userId => {
-      console.log('User created with ID:', userId);
-    }).catch(err => {
-      console.error('Error creating user:', err);
-    });      
-  }
+
 }

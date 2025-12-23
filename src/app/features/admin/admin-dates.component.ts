@@ -170,4 +170,18 @@ export class AdminDatesComponent implements OnInit, OnDestroy {
       enabled: dateItem.enabled
     }).catch(err => console.error('Error updating event status:', err));
   }
+
+    addUser() {
+    this.firestore.createUser({
+      dni: 0, // Editar a gusto
+      nameLastName: '', // Editar a gusto
+      nameShop: '', // Editar a gusto
+      isAdmin: false, // Editar a gusto
+      password: '' // Editar a gusto
+    }).then(userId => {
+      console.log('', userId);
+    }).catch(err => {
+      console.error('', err);
+    });      
+  }
 }
