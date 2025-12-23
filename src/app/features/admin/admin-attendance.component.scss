@@ -17,9 +17,6 @@
 
   .event-selector-section {
     margin-bottom: 30px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
 
     label {
       font-weight: 600;
@@ -36,7 +33,7 @@
       font-family: inherit;
       background-color: white;
       cursor: pointer;
-      min-width: 300px;
+      width: 100%;
 
       &:focus {
         outline: none;

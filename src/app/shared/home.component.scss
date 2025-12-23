@@ -1,37 +1,41 @@
+/* Layout base */
 .home-container {
- height: 100%;
- width: 100%;
+  min-height: 100dvh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #f6f7fb;
 }
 
+/* NAVBAR */
 .navbar {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #234b2a 0%, #2f9c19c9 100%);
   color: white;
-  padding: 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.navbar-content {
-  margin: 0 auto;
-  padding-top: 15px;
-  padding-bottom: 15px;
+.navbar-inner {
+  margin: 0;
+  padding: 14px clamp(12px, 3vw, 20px);
+
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  width: 100%;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-.navbar-title {
-  h1 {
-    margin: 0;
-    font-size: 24px;
-    font-weight: 600;
-  }
+.navbar-title h1 {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(18px, 2.2vw, 24px);
+  line-height: 1.2;
 }
 
+/* Usuario */
 .navbar-user {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 12px;
 }
 
 .user-info {
@@ -39,12 +43,11 @@
 
   p {
     margin: 0;
-    font-size: 14px;
   }
 
   .user-name {
     font-weight: 600;
-    margin-bottom: 4px;
+    font-size: 14px;
   }
 
   .shop-name {
@@ -54,100 +57,118 @@
 }
 
 .logout-button {
-  padding: 8px 16px;
-  background-color: rgba(255, 255, 255, 0.2);
+  padding: 10px 14px;
+  background-color: rgba(255, 255, 255, 0.18);
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 10px;
   font-size: 14px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: transform 0.08s ease, background-color 0.2s ease;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.28);
+  }
+  &:active {
+    transform: scale(0.98);
   }
 }
 
+/* MAIN */
 .main-content {
   flex: 1;
-  display: flex;
-  flex-direction: column;
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  width: 100%;
-  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
+/* TABS */
 .tabs-container {
   background: white;
-  border-bottom: 1px solid #e0e0e0;
-  margin-top: 20px;
+  border: 1px solid #ececf2;
+  border-radius: 12px;
+  overflow: hidden; /* para que el scroll quede prolijo */
 }
 
 .tabs {
   display: flex;
   gap: 0;
-  border-bottom: 2px solid #e0e0e0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+
+  /* “snap” suave en mobile */
+  scroll-snap-type: x mandatory;
+
+  /* evita que el borde inferior “salte” */
+  border-bottom: 1px solid #ececf2;
 }
 
 .tab-button {
-  padding: 16px 20px;
+  flex: 0 0 auto; /* clave para scroll horizontal */
+  scroll-snap-align: start;
+
+  padding: 12px 14px;
   background: none;
   border: none;
   color: #666;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
+
   border-bottom: 3px solid transparent;
-  transition: all 0.3s;
-  position: relative;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
 
   &:hover {
     color: #333;
+    background: rgba(102, 126, 234, 0.06);
   }
 
   &.active {
     color: #667eea;
     border-bottom-color: #667eea;
+    background: rgba(102, 126, 234, 0.08);
   }
 }
 
+/* CONTENT */
 .tab-content {
   flex: 1;
   background: white;
-  border-radius: 4px;
-  margin-top: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ececf2;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-// @media (max-width: 768px) {
-//   .navbar-content {
-//     flex-direction: column;
-//     gap: 15px;
-//     text-align: center;
-//   }
+/* Responsive: Mobile */
+@media (max-width: 768px) {
+  .navbar-inner {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
 
-//   .navbar-user {
-//     flex-direction: column;
-//     width: 100%;
-//     justify-content: center;
-//   }
+  .navbar-user {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
 
-//   .user-info {
-//     width: 100%;
-//   }
+  .user-info {
+    text-align: center;
+  }
 
-//   .logout-button {
-//     width: 100%;
-//   }
+  .logout-button {
+    width: 100%;
+  }
 
-//   .tabs {
-//     flex-wrap: wrap;
-//   }
-
-//   .tab-button {
-//     padding: 12px 16px;
-//     font-size: 12px;
-//   }
-// }
+  /* opcional: tabs más compactas */
+  .tab-button {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+}

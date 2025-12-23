@@ -1,10 +1,11 @@
 <div class="home-container">
   <!-- Top Navigation Bar -->
-  <div class="navbar">
-    <div class="navbar-content">
+  <header class="navbar">
+    <div class="navbar-inner">
       <div class="navbar-title">
         <h1>Paseo del Artesano</h1>
       </div>
+
       <div class="navbar-user" *ngIf="currentUser">
         <div class="user-info">
           <p class="user-name">{{ currentUser.nameLastName }}</p>
@@ -13,18 +14,19 @@
         <button (click)="logout()" class="logout-button">Cerrar Sesión</button>
       </div>
     </div>
-  </div>
+  </header>
 
   <!-- Main Content -->
-  <div class="main-content">
+  <main class="main-content">
     <!-- Tabs Navigation -->
     <div class="tabs-container">
-      <div class="tabs">
+      <div class="tabs" role="tablist" aria-label="Secciones">
         <button
           *ngFor="let tab of tabs"
           [class.active]="selectedTab === tab.value"
           (click)="selectTab(tab.value)"
           class="tab-button"
+          type="button"
         >
           {{ tab.label }}
         </button>
@@ -32,7 +34,7 @@
     </div>
 
     <!-- Tab Content -->
-    <div class="tab-content">
+    <section class="tab-content">
       <ng-container *ngIf="selectedTab === 'dates'">
         <app-admin-dates></app-admin-dates>
       </ng-container>
@@ -48,6 +50,6 @@
       <ng-container *ngIf="selectedTab === 'my-signups'">
         <app-user-my-signups></app-user-my-signups>
       </ng-container>
-    </div>
-  </div>
+    </section>
+  </main>
 </div>
