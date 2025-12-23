@@ -35,8 +35,5 @@ export class FirestoreTestComponent implements OnInit {
   constructor(private firestoreService: FirestoreService) {}
 
   ngOnInit() {
-    console.log('🚀 FirestoreTestComponent initialized');
-    console.log('Testing Firestore connection...');
-    this.firestoreService.testConnection();
   }
 }

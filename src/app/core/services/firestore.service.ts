@@ -197,32 +197,32 @@ export class FirestoreService {
    * Test method to console.log all data
    * (Browser only)
    */
-  testConnection(): void {
-    if (!this.isBrowser) return;
+  // testConnection(): void {
+  //   if (!this.isBrowser) return;
 
-    console.group('🔥 Firestore Service - Connection Test');
+  //   console.group('🔥 Firestore Service - Connection Test');
 
-    console.log('📋 Fetching all users...');
-    this.getAllUsers().subscribe(
-      users => console.log('Users:', users),
-      error => console.error('Error fetching users:', error),
-      () => console.log('Users fetch completed')
-    );
+  //   console.log('📋 Fetching all users...');
+  //   this.getAllUsers().subscribe(
+  //     users => console.log('Users:', users),
+  //     error => console.error('Error fetching users:', error),
+  //     () => console.log('Users fetch completed')
+  //   );
 
-    console.log('📅 Fetching all events...');
-    this.getAllEvents().subscribe(
-      events => console.log('Events:', events),
-      error => console.error('Error fetching events:', error),
-      () => console.log('Events fetch completed')
-    );
+  //   console.log('📅 Fetching all events...');
+  //   this.getAllEvents().subscribe(
+  //     events => console.log('Events:', events),
+  //     error => console.error('Error fetching events:', error),
+  //     () => console.log('Events fetch completed')
+  //   );
 
-    console.log('✍️  Fetching all inscriptions...');
-    this.getAllInscriptions().subscribe(
-      inscriptions => console.log('Inscriptions:', inscriptions),
-      error => console.error('Error fetching inscriptions:', error),
-      () => console.log('Inscriptions fetch completed')
-    );
+  //   console.log('✍️  Fetching all inscriptions...');
+  //   this.getAllInscriptions().subscribe(
+  //     inscriptions => console.log('Inscriptions:', inscriptions),
+  //     error => console.error('Error fetching inscriptions:', error),
+  //     () => console.log('Inscriptions fetch completed')
+  //   );
 
-    console.groupEnd();
-  }
+  //   console.groupEnd();
+  // }
 }

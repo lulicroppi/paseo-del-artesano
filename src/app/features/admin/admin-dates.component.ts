@@ -36,7 +36,7 @@ export class AdminDatesComponent implements OnInit, OnDestroy {
 
   constructor() {
     // Prefer to use injected service in properties to avoid DI ordering issues
-    this.firestore.testConnection(); // Opens browser console with all data
+    // this.firestore.testConnection(); // Opens browser console with all data
   }
 
   ngOnDestroy(): void {
@@ -83,7 +83,6 @@ export class AdminDatesComponent implements OnInit, OnDestroy {
       // Disable if current time is within 2 hours before the event
       if (now >= twoHoursBeforeEvent && now < eventDateTime) {
         event.enabled = false;
-        this.updateDateStatus(event);
       }
     });
   }
