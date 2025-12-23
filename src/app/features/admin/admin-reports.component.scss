@@ -131,14 +131,14 @@
       font-size: 14px;
 
       thead {
-        background-color: #2c3e50;
+        background-color: #028013;
         color: white;
 
         th {
           padding: 12px 15px;
           text-align: left;
           font-weight: 600;
-          border-bottom: 2px solid #1a252f;
+          border-bottom: 2px solid #104217;
         }
       }
 
@@ -194,7 +194,7 @@
     gap: 20px;
 
     .ranking-card {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #234b2a 0%, rgba(47, 156, 25, 0.7882352941) 100%);
       color: white;
       padding: 20px;
       border-radius: 8px;

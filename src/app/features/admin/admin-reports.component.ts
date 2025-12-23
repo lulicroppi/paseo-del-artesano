@@ -145,14 +145,26 @@ export class AdminReportsComponent implements OnInit {
   }
 
   generateTopPerformers(): void {
+    const getPercentage = (value: number, total: number): number => {
+      if (!total || total === 0) return 0;
+      return (value / total) * 100;
+    };
+
     this.topAssistance = [...this.emprendimientoStats]
-      .sort((a, b) => b.attended - a.attended)
-      .slice(0, 5);
+      .filter(s => s.registered > 0)
+      .sort((a, b) =>
+        getPercentage(b.attended, b.registered) -
+        getPercentage(a.attended, a.registered)
+      );
 
     this.topAbsence = [...this.emprendimientoStats]
-      .sort((a, b) => b.absent - a.absent)
-      .slice(0, 5);
+      .filter(s => s.registered > 0)
+      .sort((a, b) =>
+        getPercentage(b.absent, b.registered) -
+        getPercentage(a.absent, a.registered)
+      );
   }
+
 
   onReportChange(): void {
     // Report data is already generated
@@ -174,11 +186,11 @@ export class AdminReportsComponent implements OnInit {
 
   addUser() {
     this.firestore.createUser({
-      dni: 12345678,
-      nameLastName: '', // Editar a gusto
-      nameShop: '', // Editar a gusto
+      dni: 16942395, // Editar a gusto
+      nameLastName: 'Rut Golden', // Editar a gusto
+      nameShop: 'GoldenGirls', // Editar a gusto
       isAdmin: false, // Editar a gusto
-      password: '' // Editar a gusto
+      password: '123123' // Editar a gusto
     }).then(userId => {
       console.log('User created with ID:', userId);
     }).catch(err => {

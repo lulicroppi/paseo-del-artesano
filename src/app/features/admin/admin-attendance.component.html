@@ -21,11 +21,11 @@
   <!-- Attendance summary stats -->
   <div class="attendance-stats" *ngIf="selectedEventId && filteredAttendees.length > 0">
     <div class="stat-card">
-      <span class="stat-label">Total Asistentes</span>
+      <span class="stat-label">Total Registrados</span>
       <span class="stat-value">{{ filteredAttendees.length }}</span>
     </div>
     <div class="stat-card">
-      <span class="stat-label">Registrados</span>
+      <span class="stat-label">Asistieron</span>
       <span class="stat-value">{{ getCheckedInCount() }}</span>
     </div>
     <div class="stat-card">
