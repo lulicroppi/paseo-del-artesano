@@ -40,7 +40,7 @@
             <td class="center">{{ day.totalAttendees }}</td>
             <td class="center success">{{ day.attended }}</td>
             <td class="center danger">{{ day.absent }}</td>
-            <td class="center">{{ ((day.attended / day.totalAttendees) * 100).toFixed(0) }}%</td>
+            <td class="center">{{ getDayAttendancePercent(day) }}%</td>
           </tr>
         </tbody>
       </table>

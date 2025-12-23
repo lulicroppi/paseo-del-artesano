@@ -107,7 +107,7 @@ export class AdminReportsComponent implements OnInit {
 
       grouped.set(event.date, {
         date: event.date,
-        totalAttendees: attendeesForEvent.length,
+        totalAttendees: attendeesForEvent.length || 0,
         attended,
         absent
       });
@@ -161,5 +161,14 @@ export class AdminReportsComponent implements OnInit {
   getAttendanceRate(stats: EmprendimientoStats): number {
     if (stats.registered === 0) return 0;
     return Math.round((stats.attended / stats.registered) * 100);
+  }
+
+  getDayAttendancePercent(day: AttendancePerDay): number {
+    const total = Number(day?.totalAttendees ?? 0);
+    const attended = Number(day?.attended ?? 0);
+
+    if (!total || total <= 0) return 0;
+
+    return Math.round((attended / total) * 100);
   }
 }
