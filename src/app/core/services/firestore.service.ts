@@ -13,6 +13,7 @@ import {
   where
 } from '@angular/fire/firestore';
 import { Observable, of } from 'rxjs';
+import { User } from '../models/user.model';
 
 /**
  * FirestoreService - Handles Firestore database operations
@@ -114,7 +115,7 @@ export class FirestoreService {
   /**
    * Create a new user
    */
-  createUser(userData: any): Promise<string> {
+  createUser(userData: User): Promise<string> {
     if (!this.isBrowser) return Promise.reject('Firestore disabled during SSR/prerender');
     console.log('Creating new user:', userData);
     return addDoc(collection(this.firestore, 'users'), userData).then(docRef => docRef.id);
