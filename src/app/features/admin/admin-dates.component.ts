@@ -22,6 +22,7 @@ export class AdminDatesComponent implements OnInit, OnDestroy {
   datesList: EventDate[] = [];
   showForm: boolean = false;
   isEditing: boolean = false;
+  isSaving: boolean = false;
   currentDate: EventDate = this.createEmptyDate();
   private checkInterval: any;
   private firestore = inject(FirestoreService);
@@ -98,32 +99,33 @@ export class AdminDatesComponent implements OnInit, OnDestroy {
   }
 
   saveDate(): void {
-    if (this.isEditing) {
-      // Update in Firestore
-      this.firestore.updateEvent(this.currentDate.id, {
-        eventName: this.currentDate.eventName,
-        date: this.currentDate.date,
-        time: this.currentDate.time,
-        enabled: this.currentDate.enabled
-      }).then(() => {
-        this.showForm = false;
-        this.currentDate = this.createEmptyDate();
-        this.loadDates();
-      }).catch(err => console.error('Error updating event:', err));
-    } else {
-      // Create in Firestore
-      this.firestore.createEvent({
-        eventName: this.currentDate.eventName,
-        date: this.currentDate.date,
-        time: this.currentDate.time,
-        enabled: this.currentDate.enabled
-      }).then(() => {
-        this.showForm = false;
-        this.currentDate = this.createEmptyDate();
-        this.loadDates();
-      }).catch(err => console.error('Error creating event:', err));
-    }
-  }
+  if (this.isSaving) return;
+
+  this.isSaving = true;
+
+  const payload = {
+    eventName: this.currentDate.eventName,
+    date: this.currentDate.date,
+    time: this.currentDate.time,
+    enabled: this.currentDate.enabled
+  };
+
+  const request = this.isEditing
+    ? this.firestore.updateEvent(this.currentDate.id, payload)
+    : this.firestore.createEvent(payload);
+
+  request
+    .then(() => {
+      this.showForm = false;
+      this.currentDate = this.createEmptyDate();
+      this.loadDates();
+    })
+    .catch(err => console.error('Error saving event:', err))
+    .finally(() => {
+      this.isSaving = false;
+    });
+}
+
 
   cancelForm(): void {
     this.showForm = false;

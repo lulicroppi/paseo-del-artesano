@@ -38,25 +38,8 @@
       <div class="card-body">
         <div class="event-detail">
           <span class="detail-label">📅 Fecha</span>
-          <span class="detail-value">{{ formatDate(signup.registrationDate) }} HS</span>
+          <span class="detail-value"> {{ signup.eventDate | date:'dd/MM/yyyy' }} 🕐 {{ signup.time }}</span>
         </div>
-        <div class="event-status" [ngClass]="{'status-inactive': !signup.enabled, 'status-active': signup.enabled}">
-          <span>{{ signup.enabled ? '✓ Evento Activo' : '✕ Evento Cerrado' }}</span>
-        </div>
-      </div>
-
-      <div class="card-footer">
-        <button
-          *ngIf="signup.enabled"
-          (click)="cancelSignup(signup)"
-          class="btn-cancel"
-          title="Cancelar inscripción"
-        >
-          Cancelar Inscripción
-        </button>
-        <button *ngIf="!signup.enabled" class="btn-closed" disabled>
-          Evento Cerrado
-        </button>
       </div>
     </div>
   </div>

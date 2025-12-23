@@ -1,5 +1,5 @@
 export interface Event {
   id: string;
-  fecha: Date | any;  // Firestore Timestamp
+  fecha: Date;  // Firestore Timestamp
   enabled?: boolean;
 }

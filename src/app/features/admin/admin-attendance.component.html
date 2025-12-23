@@ -39,7 +39,7 @@
     <table class="attendees-table">
       <thead>
         <tr>
-          <th>Nombre</th>
+          <!-- <th>Nombre</th> -->
           <th>Emprendimiento</th>
           <th>Estado</th>
           <th>Acciones</th>
@@ -47,7 +47,7 @@
       </thead>
       <tbody>
         <tr *ngFor="let attendee of filteredAttendees" [ngClass]="'status-' + attendee.status">
-          <td>{{ attendee.nameLastName }}</td>
+          <!-- <td>{{ attendee.nameLastName }}</td> -->
           <td>{{ attendee.nameShop }}</td>
           <td>
             <span class="status-badge" [ngClass]="'status-' + attendee.status">

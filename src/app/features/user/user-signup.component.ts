@@ -78,13 +78,16 @@ export class UserSignupComponent implements OnInit {
       this.showMessage(`Ya estás inscrito en ${event.eventName}`);
     } else {
       // Create inscription in Firestore
+      
       this.firestore.createInscription({
         userId: String(currentUser.dni),
         eventId: event.id,
         status: 'Anotado',
         nameLastName: currentUser.nameLastName,
         nameShop: currentUser.nameShop,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        eventDate: event.date,
+        time: event.time
       }).then(() => {
         this.userSignups.add(event.id);
         this.showMessage(`¡Te has registrado!`);

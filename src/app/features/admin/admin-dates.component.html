@@ -18,8 +18,9 @@
         <input [(ngModel)]="currentDate.time" name="time" type="time" required />
       </div>
       <div class="form-actions">
-        <button type="submit" class="btn-save">Guardar</button>
-        <button type="button" (click)="cancelForm()" class="btn-cancel">Cancelar</button>
+        <button type="submit" class="btn-save" *ngIf="!isSaving">Guardar</button>
+        
+        <button type="button" (click)="cancelForm()" class="btn-cancel" *ngIf="!isSaving">Cancelar</button>
       </div>
     </form>
   </div>

@@ -16,6 +16,7 @@ interface UserSignup {
   id: string;
   eventId: string;
   eventName: string;
+  eventDate: string;
   date: string;
   time: string;
   enabled: boolean;
@@ -57,7 +58,7 @@ export class UserMySignupsComponent implements OnInit {
         id: ins.id,
         eventId: ins.eventId?.toString() ?? (ins.idEvent ? String(ins.idEvent) : ''),
         eventName: ins.eventName ?? ins.nameShop ?? 'Evento',
-        date: ins.eventDate ? new Date(ins.eventDate.seconds ? ins.eventDate.seconds * 1000 : ins.eventDate).toISOString() : (ins.fecha ?? ''),
+        eventDate: ins.eventDate ? new Date(ins.eventDate.seconds ? ins.eventDate.seconds * 1000 : ins.eventDate).toISOString() : (ins.fecha ?? ''),
         time: ins.time ?? '',
         enabled: ins.enabled ?? true,
         status: ins.status ?? (ins.assisted ? 'attended' : 'confirmed'),
@@ -96,6 +97,7 @@ export class UserMySignupsComponent implements OnInit {
 
   onFilterChange(): void {
     this.filterSignups();
+        console.log(this.userSignups, this.filteredSignups);
   }
 
   cancelSignup(signup: UserSignup): void {
