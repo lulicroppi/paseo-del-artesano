@@ -65,6 +65,7 @@ export class AdminDatesComponent implements OnInit, OnDestroy {
         time: e.time ?? '',
         enabled: e.enabled ?? true
       } as EventDate));
+      this.datesList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       this.checkEventStatus();
     }, err => {
       console.error('Error loading events from Firestore:', err);
@@ -82,6 +83,7 @@ export class AdminDatesComponent implements OnInit, OnDestroy {
       // Disable if current time is within 2 hours before the event
       if (now >= twoHoursBeforeEvent && now < eventDateTime) {
         event.enabled = false;
+        this.updateDateStatus(event);
       }
     });
   }
