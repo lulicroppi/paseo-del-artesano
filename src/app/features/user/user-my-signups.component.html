@@ -20,7 +20,7 @@
       <div class="card-body">
         <div class="event-detail">
           <span class="detail-label">📅 Fecha</span>
-          <span class="detail-value"> {{ signup.eventDate | date:'dd/MM/yyyy' }} 🕐 {{ signup.time }}</span>
+          <span class="detail-value"> {{ signup.eventDate | date:'dd/MM/yyyy':'UTC' }} 🕐 {{ signup.time }}</span>
         </div>
       </div>
     </div>
