@@ -110,7 +110,9 @@ export class AdminAttendanceComponent implements OnInit {
 
   filterAttendeesByEvent(): void {
     if (this.selectedEventId) {
-      this.filteredAttendees = this.attendees.filter(a => a.eventId === this.selectedEventId);
+      this.filteredAttendees = this.attendees
+        .filter(a => a.eventId === this.selectedEventId)
+        .sort((a, b) => (a.nameShop || '').localeCompare(b.nameShop || ''));
     } else {
       this.filteredAttendees = [];
     }
