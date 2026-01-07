@@ -20,6 +20,12 @@
           <span class="detail-label">🕐 Hora:</span>
           <span class="detail-value">{{ event.time }}</span>
         </div>
+        <div class="detail-row">
+          <span class="detail-label">👥 Inscriptos: </span>
+          <span class="detail-value">
+            <span class="count-badge">{{ getSignupCountForDate(event.date) }}</span>
+          </span>
+        </div>
       </div>
 
       <!-- Sign up buttons -->

@@ -24,6 +24,8 @@ export class UserSignupComponent implements OnInit {
   userSignups: Set<string> = new Set();
   showConfirmation: boolean = false;
   confirmationMessage: string = '';
+  // Map of date (YYYY-MM-DD) -> total inscriptions count
+  signupCountsByDate: Record<string, number> = {};
   
   private firestore = inject(FirestoreService);
   private authService = inject(AuthService);
@@ -31,6 +33,7 @@ export class UserSignupComponent implements OnInit {
   ngOnInit(): void {
     this.loadEnabledEvents();
     this.loadUserSignups();
+    this.loadSignupCountsByDate();
   }
 
   async loadEnabledEvents(): Promise<void> {
@@ -54,6 +57,42 @@ export class UserSignupComponent implements OnInit {
     } catch (err) {
       console.error('Error loading events from Firestore:', err);
     }
+  }
+
+  /** Normalize date string to YYYY-MM-DD */
+  private normalizeDateString(dateStr: string): string {
+    try {
+      // If already in YYYY-MM-DD, return as is
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      return d.toISOString().split('T')[0];
+    } catch {
+      return dateStr;
+    }
+  }
+
+  /** Load total inscriptions counts grouped by event date */
+  async loadSignupCountsByDate(): Promise<void> {
+    try {
+      const inscriptions = await this.firestore.getAllInscriptions();
+      const counts: Record<string, number> = {};
+      for (const ins of inscriptions) {
+        const rawDate = String(ins.eventDate ?? ins.date ?? '');
+        if (!rawDate) continue;
+        const key = this.normalizeDateString(rawDate);
+        counts[key] = (counts[key] ?? 0) + 1;
+      }
+      this.signupCountsByDate = counts;
+    } catch (err) {
+      console.error('Error loading inscription counts:', err);
+    }
+  }
+
+  /** Get total inscriptions for a given event date */
+  getSignupCountForDate(date: string): number {
+    const key = this.normalizeDateString(date);
+    return this.signupCountsByDate[key] ?? 0;
   }
 
   async loadUserSignups(): Promise<void> {
@@ -92,6 +131,9 @@ export class UserSignupComponent implements OnInit {
         time: event.time
       }).then(() => {
         this.userSignups.add(event.id);
+        // Update local count for this date
+        const key = this.normalizeDateString(event.date);
+        this.signupCountsByDate[key] = (this.signupCountsByDate[key] ?? 0) + 1;
         this.showMessage(`¡Te has registrado!`);
       }).catch(err => {
         console.error('Error creating inscription:', err);
@@ -112,6 +154,10 @@ export class UserSignupComponent implements OnInit {
       if (inscription) {
         await this.firestore.deleteInscription(inscription.id);
         this.userSignups.delete(event.id);
+        // Update local count for this date
+        const key = this.normalizeDateString(event.date);
+        const current = this.signupCountsByDate[key] ?? 0;
+        this.signupCountsByDate[key] = Math.max(0, current - 1);
         this.showMessage(`Te has dado de baja`);
       }
     } catch (err) {
