@@ -46,6 +46,7 @@ export class AdminReportsComponent implements OnInit {
 
   events: Event[] = [];
   attendees: Attendee[] = [];
+  allEmprendimientos: string[] = [];
   selectedReport: string = 'attendees-per-day';
 
   attendancePerDay: AttendancePerDay[] = [];
@@ -57,6 +58,7 @@ export class AdminReportsComponent implements OnInit {
     // Initialize using cached-or-fetch reads (no extra button needed)
     this.loadEvents();
     this.loadAttendees();
+    this.loadUsers();
   }
 
   async loadEvents(): Promise<void> {
@@ -135,8 +137,30 @@ export class AdminReportsComponent implements OnInit {
     }
   }
 
+  async loadUsers(): Promise<void> {
+    try {
+      const users = await this.firestore.getAllUsers();
+      const names = (users ?? []).map((u: any) => String(u.nameShop ?? '').trim()).filter(Boolean);
+      this.allEmprendimientos = Array.from(new Set(names));
+      this.generateReports();
+    } catch (err) {
+      console.error('Error loading users from Firestore:', err);
+    }
+  }
+
+  async loadUsersFromCache(): Promise<void> {
+    try {
+      const users = await this.firestore.getCachedAllUsers();
+      const names = (users ?? []).map((u: any) => String(u.nameShop ?? '').trim()).filter(Boolean);
+      this.allEmprendimientos = Array.from(new Set(names));
+      this.generateReports();
+    } catch (err) {
+      console.error('Error loading cached users:', err);
+    }
+  }
+
   refreshReports(): Promise<void[]> {
-    return Promise.all([this.loadEvents(), this.loadAttendees()]);
+    return Promise.all([this.loadEvents(), this.loadAttendees(), this.loadUsers()]);
   }
 
   generateReports(): void {
@@ -186,6 +210,20 @@ export class AdminReportsComponent implements OnInit {
 
       if (attendee.status === 'Asistio') stats.attended++;
       else if (attendee.status === 'No asistio') stats.absent++;
+    });
+
+    // Include emprendimientos that never registered to any event
+    this.allEmprendimientos.forEach(name => {
+      const emprendimiento = (name ?? '').trim();
+      if (!emprendimiento) return;
+      if (!statsMap.has(emprendimiento)) {
+        statsMap.set(emprendimiento, {
+          emprendimiento,
+          attended: 0,
+          absent: 0,
+          registered: 0
+        });
+      }
     });
 
     this.emprendimientoStats = Array.from(statsMap.values())
