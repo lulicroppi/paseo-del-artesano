@@ -149,17 +149,28 @@ export class UserSignupComponent implements OnInit {
     if (!currentUser?.dni) return;
 
     try {
-      const inscriptions = await this.firestore.getAllInscriptions();
-      const inscription = inscriptions.find(ins => ins.eventId === event.id && ins.userId === String(currentUser.dni));
-      if (inscription) {
-        await this.firestore.deleteInscription(inscription.id);
-        this.userSignups.delete(event.id);
-        // Update local count for this date
-        const key = this.normalizeDateString(event.date);
-        const current = this.signupCountsByDate[key] ?? 0;
-        this.signupCountsByDate[key] = Math.max(0, current - 1);
-        this.showMessage(`Te has dado de baja`);
-      }
+      // Fetch only current user's inscriptions to reduce reads
+      const userInscriptions = await this.firestore.getUserInscriptions(String(currentUser.dni));
+
+      // Match both current and legacy field names for event ID
+      const matches = userInscriptions.filter(ins => {
+        const evId = ins.eventId ?? ins.idEvent;
+        return String(evId) === String(event.id);
+      });
+
+      if (matches.length === 0) return;
+
+      // Delete all matching inscriptions to prevent duplicates lingering
+      await Promise.all(matches.map((m: any) => this.firestore.deleteInscription(m.id)));
+
+      this.userSignups.delete(event.id);
+
+      // Decrease local count for this date by number of deletions
+      const key = this.normalizeDateString(event.date);
+      const current = this.signupCountsByDate[key] ?? 0;
+      this.signupCountsByDate[key] = Math.max(0, current - matches.length);
+
+      this.showMessage(`Te has dado de baja`);
     } catch (err) {
       console.error('Error fetching/deleting inscription:', err);
       this.showMessage('Error al desinscribirse. Intenta de nuevo.');
